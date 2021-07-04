@@ -94,8 +94,9 @@
 
             function updateTweet() {
                 const link = document.getElementById('b');
-                const url = new URL("https://twitter.com/intent/tweet")
+                const url = new URL("https://twitter.com/intent/tweet");
                 url.searchParams.set('text', composeTweet());
+                url.searchParams.set('url', 'https://snowcait.github.io/pixelartweet/');
                 url.searchParams.set('hashtags', 'pixelartweet,pixelart');
                 url.searchParams.set('related', 'pixelartweet');
                 url.searchParams.set('ref_src', 'twsrc%5Etfw');
