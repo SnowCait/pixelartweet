@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>pixelartweet</title>
+        <meta name="description" content="Compose tweet with emoji pixelart.">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0">
+        <link rel="icon" href="favicon.ico">
+
+        <!-- https://twemoji.twitter.com/ -->
+        <script src="https://twemoji.maxcdn.com/v/latest/twemoji.min.js" crossorigin="anonymous"></script>
+
+        <!-- https://developer.twitter.com/en/docs/twitter-for-websites/tweet-button/overview -->
+        <script>
+            window.twttr = (function(d, s, id) {
+                var js, fjs = d.getElementsByTagName(s)[0],
+                    t = window.twttr || {};
+                if (d.getElementById(id)) return t;
+                js = d.createElement(s);
+                js.id = id;
+                js.src = "https://platform.twitter.com/widgets.js";
+                fjs.parentNode.insertBefore(js, fjs);
+
+                t._e = [];
+                t.ready = function(f) {
+                    t._e.push(f);
+                };
+
+                return t;
+            }(document, "script", "twitter-wjs"));
+        </script>
+        <link rel="stylesheet" href="twitter.css">
+
+        <script data-ad-client="ca-pub-5687240532299433" async
+            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js">
+        </script>
+
+        <script type="text/javascript">
+            let spoit = "⬛";
+            const width = 8;
+            const height = 8;
+
+            function createPalette() {
+                const palette = document.getElementById('palette');
+                const pixels = Array.from("🟥🟦🟧🟨🟩🟪🟫⬛⬜🔴🔵🟠🟡🟢🟣🟤⚫⚪❤💙🧡💛💚💜🤎🖤🤍");
+                pixels.map(pixel => {
+                    console.debug(pixel, pixel.codePointAt(0).toString(16));
+                    const pixelElement = document.createElement('span');
+                    pixelElement.textContent = pixel;
+                    pixelElement.addEventListener('click', event => {
+                        console.log(event);
+                        spoit = event.target.alt;
+                    });
+                    return pixelElement;
+                }).forEach(element => {
+                    palette.appendChild(element);
+                });
+            }
+
+            function createCanvas() {
+                const canvas = document.getElementById('canvas');
+                console.log(canvas)
+                Array.from({length: height}, () => new Array(width).fill("⬜")).forEach(rows => {
+                    rows.forEach(pixel => {
+                        const pixelElement = document.createElement('span');
+                        pixelElement.innerHTML = twemoji.parse(pixel);
+                        pixelElement.addEventListener('click', event => {
+                            pixelElement.innerHTML = twemoji.parse(spoit);
+                            updateTweet();
+                            event.preventDefault();
+                        });
+
+                        canvas.appendChild(pixelElement);
+                    });
+
+                    canvas.appendChild(document.createElement('br'));
+                });
+
+                updateTweet();
+            }
+
+            function composeTweet() {
+                const canvas = document.getElementById('canvas');
+                const tweet = Array.from(canvas.children).map(element => {
+                    return element instanceof HTMLSpanElement ? element.firstChild.alt : "\n";
+                }).join("");
+                console.debug(tweet);
+                return tweet;
+            }
+
+            function parseTwemoji() {
+                twemoji.parse(document.getElementById('palette'));
+            }
+
+            function updateTweet() {
+                const link = document.getElementById('b');
+                const url = new URL("https://twitter.com/intent/tweet")
+                url.searchParams.set('text', composeTweet());
+                url.searchParams.set('hashtags', 'pixelartweet,pixelart');
+                url.searchParams.set('related', 'pixelartweet');
+                url.searchParams.set('ref_src', 'twsrc%5Etfw');
+                url.searchParams.set('tw_p', 'tweetbutton');
+                link.href = url.href;
+            }
+
+            window.addEventListener('load', createPalette);
+            window.addEventListener('load', createCanvas);
+            window.addEventListener('load', parseTwemoji);
+        </script>
+
+        <style>
+            #main, footer {
+                max-width: 400px;
+                margin: 0 auto;
+                padding: 4px;
+            }
+
+            #main h1 {
+                font-size: large;
+            }
+
+            #palette {
+                width: 72px;
+                float: right;
+            }
+
+            #widget {
+                margin-top: 18px;
+            }
+
+            img.emoji {
+                width: 36px;
+                height: 36px;
+            }
+        </style>
+    </head>
+    <body>
+        <section id="main">
+            <h1><a href="https://twitter.com/search?q=%23pixelartweet&src=typed_query&f=live" target="_blank">#pixelartweet</a></h1>
+            <div id="palette"></div>
+            <div id="canvas"></div>
+            <div id="widget" class="xl ltr ready">
+                <div class="btn-o" data-scribe="component:button" style="width: 76px;">
+                    <a href="" class="btn" id="b">
+                        <i></i><span class="label" id="l">Tweet</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </body>
+</html>
